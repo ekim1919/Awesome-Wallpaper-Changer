@@ -1,0 +1,133 @@
+#! /bin/bash 
+
+# A script for changing the background for the awesome windows manager. 
+# Made specifically for users with multiple monitors. Made for users who want different wallpapers for each monitor. 
+# Screen number to which the picture will be pasted 
+# Requires the gear libraries/module for the awesome wm.
+
+directory=/home/edward/awesomestuff/Temp
+rcscriptloc=/home/edward/awesomestuff/
+
+#start of script 
+
+if [ $# -eq "0" ] ; then 
+
+	echo "You need at least a URL (Format: bgchange ARGUMENT URL SCREEN CHANGESCRIPT)"
+        exit
+fi
+
+case $1 in 
+	-l) local $2
+	;;
+	-i) internet $2
+	;;
+	-b) backup $2
+	;;
+	-r) restore $2
+	;;
+	*) echo “Not a valid option”
+	exit
+	;;
+esac 
+
+if [ $# -eq "2" ] ; then
+   
+	echo "Default: using screen 1 (main)"
+	screennum=1
+else
+	echo Using screen:$3
+	screennum=$3
+fi
+
+if [ ! -e $directory/OriginalScript/rc.lua ] ; then 
+
+	echo No previous rc.lua script detected or lua script is changed; using the one in $rcscriptloc 
+        cp $rcscriptloc/rc.lua $directory/OriginalScript/ 
+fi 
+
+case "$4" in 
+	maximized) echo "gears.wallpaper.maximized(\"$directory/$file\" , $screennum, true)" > $directory/Screens/$screennum 
+	;;
+	centered) echo "gears.wallpaper.centered(\"$directory/$file\" , $screennum, true)" > $directory/Screens/$screennum
+	;;
+	*) echo "Using maximized default setting" 
+	   echo "gears.wallpaper.maximized(\"$directory/$file\" , $screennum, true)" > $directory/Screens/$screennum
+	;;
+esac
+
+#Copy original script as template 
+
+cp $directory/OriginalScript/rc.lua $rcscriptloc 
+
+#Adds all the wallpaper gear statements to rc.lua in $rcsciptloc 
+
+for screen in $directory/Screens/*  
+do
+	cat $screen >> $rcscriptloc/rc.lua 
+done 
+
+echo 'awesome.restart()' | awesome-client 2>/dev/null
+
+#####################
+# Functions needed for bgchange 
+#
+#####################
+
+function internet() {
+
+url=$1
+file=`basename $url 2>/dev/null`
+
+echo "Attempting to download image"
+
+#check validity of URL
+wget --spider $url 2>/dev/null
+
+# Checks if picture exists and/or URL is valid 
+
+if [ $? -ne 0 ] ; then
+
+        echo "Invalid URL"
+        exit
+else
+	wget -P $directory -N $url 2>/dev/null
+        echo "Download successful"
+fi
+
+}
+
+# Copy picture over to wallpaper folder
+
+function local(){
+
+	path=$1
+	file=`basename $path` 
+	
+	cp $path $directory 2>/dev/null 
+}
+
+function backup(){
+	
+	name=$1
+	cp $rcscriptloc/rc.lua $directory/Backup/$name
+	echo Backup successful named $name
+	exit
+}
+
+function restore(){
+	
+	name=$1
+	cp $directory/Backup/$name $rcscriptloc/rc.lua
+	if [ $? -ne "0" ] ; then
+		echo "Restore Failed. Does the file exist?"
+		exit
+	else
+		echo "Restore successful"
+	fi
+	echo 'awesome.restart()' | awesome-client 2>/dev/null
+	exit
+	
+}
+
+
+	
