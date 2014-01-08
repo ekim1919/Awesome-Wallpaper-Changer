@@ -95,13 +95,13 @@ function destroy() {
         exit 
 }          
 
-#########################
-# Global Variables
-#########################
+########################################################
+# Global Variables. Values can be changed to directory user specifies
+########################################################
 
-directory=/home/edward/awesomestuff/Temp #Directory where wallpaper and configurations are stored.
-rcscriptloc=/home/edward/awesome #location of the rc.lua script awesome will use.
-Screendir=/home/edward/awesomestuff/Screens #location where the lua statements to change the wallpapers for each screen will be stored. 
+directory=$HOME/awesomestuff/Temp #Directory where wallpaper and configurations are stored.
+rcscriptloc=$HOME/awesome #location of the rc.lua script awesome will use.
+Screendir=$HOME/awesomestuff/Screens #location where the lua statements to change the wallpapers for each screen will be stored. 
 
 #start of script 
 
